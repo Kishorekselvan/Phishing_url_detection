@@ -51,3 +51,16 @@ results/*.csv
 # ===============================
 tmp/
 temp/
+
+# ML data
+backend/data/*.npy
+
+# trained models
+backend/saved_models/*.pkl
+
+# Python
+venv/
+__pycache__/
+
+# frontend
+node_modules/

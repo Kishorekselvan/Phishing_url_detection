@@ -1,0 +1,441 @@
+/* UrlInput.css */
+
+.url-input-form {
+  position: relative;
+  margin-bottom: 30px;
+  padding: 10px 0;
+  animation: fadeInUp 0.5s ease-out;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.input-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 2;
+  max-width: 600px;
+  width: 100%;
+}
+
+.url-input {
+  padding: 16px 24px;
+  width: 380px;
+  font-size: 1rem;
+  color: #ffffff;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border: 2px solid #334155;
+  border-radius: 14px;
+  outline: none;
+  transition: all 0.3s ease;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.3px;
+}
+
+.url-input:hover {
+  border-color: #475569;
+  transform: translateY(-1px);
+}
+
+.url-input.focused {
+  border: 2px solid #0ea5e9;
+  box-shadow: 0 8px 25px rgba(14, 165, 233, 0.3);
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 95%);
+}
+
+.url-input.filled {
+  border: 2px solid #14b8a6;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 95%);
+}
+
+.url-input::placeholder {
+  color: #64748b;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.95rem;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.url-input:focus::placeholder {
+  opacity: 0.4;
+  transform: translateX(8px);
+}
+
+/* Pulse animation for empty input */
+.url-input:placeholder-shown {
+  animation: softPulse 2s infinite;
+}
+
+.analyze-btn {
+  padding: 16px 36px;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #ffffff;
+  min-width: 140px;
+  position: relative;
+  overflow: hidden;
+}
+
+.analyze-btn.active {
+  background: linear-gradient(135deg, #0ea5e9 0%, #14b8a6 100%);
+  box-shadow: 0 8px 20px rgba(14, 165, 233, 0.4);
+  cursor: pointer;
+}
+
+.analyze-btn.disabled {
+  background: linear-gradient(135deg, #475569 0%, #334155 100%);
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.analyze-btn.active:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(14, 165, 233, 0.5);
+}
+
+.analyze-btn.active:active {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(14, 165, 233, 0.4);
+}
+
+/* Shine effect on button */
+.analyze-btn.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.analyze-btn.active:hover::before {
+  left: 100%;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes softPulse {
+  0% {
+    border-color: #334155;
+  }
+  50% {
+    border-color: #475569;
+  }
+  100% {
+    border-color: #334155;
+  }
+}
+
+/* Add a subtle background line animation after form mounts */
+.url-input-form::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #0ea5e9, #14b8a6, #0ea5e9);
+  animation: expandLine 1s ease-out forwards;
+  border-radius: 2px;
+}
+
+@keyframes expandLine {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 80%;
+    opacity: 0.3;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .input-group {
+    flex-direction: column;
+    width: 90%;
+  }
+  
+  .url-input {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .analyze-btn {
+    width: 100%;
+  }
+  
+  @keyframes expandLine {
+    to {
+      width: 90%;
+    }
+  }
+}
+
+/* Dark theme enhancements */
+@media (prefers-color-scheme: dark) {
+  .url-input {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  }
+}
+
+/* Ensure text is visible */
+.url-input {
+  -webkit-text-fill-color: #ffffff;
+  opacity: 1;
+}
+
+.url-input:-webkit-autofill,
+.url-input:-webkit-autofill:hover,
+.url-input:-webkit-autofill:focus,
+.url-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #1e293b inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff;
+}
+/* URLinput.css */
+
+.url-input-form {
+  position: relative;
+  margin: 0 auto;
+  padding: 0;
+  animation: fadeInUp 0.5s ease-out;
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  justify-content: center;
+  z-index: 10;
+}
+
+.input-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 10;
+  width: 100%;
+}
+
+.url-input {
+  padding: 16px 24px;
+  width: 400px;
+  font-size: 1rem;
+  color: #ffffff;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border: 2px solid #334155;
+  border-radius: 14px;
+  outline: none;
+  transition: all 0.3s ease;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.3px;
+}
+
+.url-input:hover {
+  border-color: #475569;
+  transform: translateY(-1px);
+}
+
+.url-input.focused {
+  border: 2px solid #0ea5e9;
+  box-shadow: 0 8px 25px rgba(14, 165, 233, 0.3);
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 95%);
+}
+
+.url-input.filled {
+  border: 2px solid #14b8a6;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 95%);
+}
+
+.url-input::placeholder {
+  color: #64748b;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.95rem;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.url-input:focus::placeholder {
+  opacity: 0.4;
+  transform: translateX(8px);
+}
+
+/* Pulse animation for empty input */
+.url-input:placeholder-shown {
+  animation: softPulse 2s infinite;
+}
+
+.analyze-btn {
+  padding: 16px 36px;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #ffffff;
+  min-width: 140px;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.analyze-btn.active {
+  background: linear-gradient(135deg, #0ea5e9 0%, #14b8a6 100%);
+  box-shadow: 0 8px 20px rgba(14, 165, 233, 0.4);
+  cursor: pointer;
+}
+
+.analyze-btn.disabled {
+  background: linear-gradient(135deg, #475569 0%, #334155 100%);
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.analyze-btn.active:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(14, 165, 233, 0.5);
+}
+
+.analyze-btn.active:active {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(14, 165, 233, 0.4);
+}
+
+/* Shine effect on button */
+.analyze-btn.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.analyze-btn.active:hover::before {
+  left: 100%;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes softPulse {
+  0% {
+    border-color: #334155;
+  }
+  50% {
+    border-color: #475569;
+  }
+  100% {
+    border-color: #334155;
+  }
+}
+
+/* Remove the background line animation that might be causing overlap */
+.url-input-form::after {
+  display: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .url-input-form {
+    max-width: 100%;
+    padding: 0 10px;
+  }
+
+  .input-group {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+  
+  .url-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 20px;
+  }
+  
+  .analyze-btn {
+    width: 100%;
+    min-width: unset;
+    padding: 14px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .url-input {
+    padding: 12px 16px;
+    font-size: 0.95rem;
+  }
+  
+  .analyze-btn {
+    padding: 12px 20px;
+    font-size: 0.95rem;
+  }
+}
+
+/* Dark theme enhancements */
+@media (prefers-color-scheme: dark) {
+  .url-input {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  }
+}
+
+/* Ensure text is visible */
+.url-input {
+  -webkit-text-fill-color: #ffffff;
+  opacity: 1;
+}
+
+.url-input:-webkit-autofill,
+.url-input:-webkit-autofill:hover,
+.url-input:-webkit-autofill:focus,
+.url-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #1e293b inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff;
+}
