@@ -3,8 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 import pandas as pd
+import numpy as np
 import joblib
 import shap
+
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 from src.feature_engineering import extract_single_url_features
 
@@ -12,10 +16,10 @@ from src.feature_engineering import extract_single_url_features
 # Initialize FastAPI
 # ==============================
 
-app = FastAPI(title="Phishing URL Detection API")
+app = FastAPI(title="Hybrid Phishing URL Detection API")
 
 # ==============================
-# Enable CORS (for React frontend)
+# Enable CORS
 # ==============================
 
 app.add_middleware(
@@ -27,17 +31,33 @@ app.add_middleware(
 )
 
 # ==============================
-# Load Model + Feature Columns
+# Load Models
 # ==============================
 
-model = joblib.load("saved_models/stacking_phishing_model.pkl")
+# ML (Stacking)
+stack_model = joblib.load("saved_models/stacking_phishing_model.pkl")
+
+# Meta model (Hybrid)
+meta_model = joblib.load("saved_models/hybrid_meta_model.pkl")
+
+# Feature columns
 feature_columns = joblib.load("saved_models/feature_columns.pkl")
 
-# Extract XGBoost model from stacking for SHAP
-xgb_model = model.named_estimators_["xgb"]
+# LSTM model
+lstm_model = load_model("saved_models/lstm_model.keras")
 
-# SHAP explainer
+# Tokenizer
+tokenizer = joblib.load("saved_models/tokenizer.pkl")
+
+# SHAP (for XGBoost inside stacking)
+xgb_model = stack_model.named_estimators_["xgb"]
 explainer = shap.TreeExplainer(xgb_model)
+
+# ==============================
+# Config
+# ==============================
+
+MAX_LEN = 100  # must match training
 
 # ==============================
 # Request Schema
@@ -53,7 +73,7 @@ class URLRequest(BaseModel):
 
 @app.get("/")
 def home():
-    return {"message": "Phishing URL Detection API running"}
+    return {"message": "Hybrid Phishing Detection API running 🚀"}
 
 
 # ==============================
@@ -63,32 +83,47 @@ def home():
 @app.post("/predict")
 def predict_url(data: URLRequest):
 
-    url = data.url
-
-    # Extract features
-    features = extract_single_url_features(url)
-
-    features_df = pd.DataFrame([features])
-
-    # Align columns with training features
-    features_df = features_df.reindex(columns=feature_columns, fill_value=0)
-
-    # Model prediction
-    prediction = model.predict(features_df)[0]
-    probability = model.predict_proba(features_df)[0][1]
-
-    result = "phishing" if prediction == 1 else "legitimate"
+    url = data.url.lower().strip()
 
     # ==============================
-    # SHAP Explainability
+    # 🔹 1. ML FEATURES → STACKING
+    # ==============================
+
+    features = extract_single_url_features(url)
+    features_df = pd.DataFrame([features])
+
+    features_df = features_df.reindex(columns=feature_columns, fill_value=0)
+
+    stack_prob = stack_model.predict_proba(features_df)[0][1]
+
+    # ==============================
+    # 🔹 2. LSTM PREDICTION
+    # ==============================
+
+    seq = tokenizer.texts_to_sequences([url])
+    pad = pad_sequences(seq, maxlen=MAX_LEN, padding='post')
+
+    lstm_prob = lstm_model.predict(pad)[0][0]
+
+    # ==============================
+    # 🔹 3. HYBRID META MODEL
+    # ==============================
+
+    X_meta = np.array([[stack_prob, lstm_prob]])
+
+    final_pred = meta_model.predict(X_meta)[0]
+    final_prob = meta_model.predict_proba(X_meta)[0][1]
+
+    result = "phishing" if final_pred == 1 else "legitimate"
+
+    # ==============================
+    # 🔹 4. SHAP EXPLANATION (ML ONLY)
     # ==============================
 
     shap_values = explainer.shap_values(features_df)
 
-    # Map feature names with shap values
     shap_importance = dict(zip(feature_columns, shap_values[0]))
 
-    # Get top 5 influential features
     top_features = sorted(
         shap_importance.items(),
         key=lambda x: abs(x[1]),
@@ -103,10 +138,20 @@ def predict_url(data: URLRequest):
         else:
             explanations.append(f"{feature} suggests legitimate behavior")
 
+    # ==============================
+    # 🔹 5. RESPONSE
+    # ==============================
+
     return {
         "url": url,
-        "prediction": result,
-        "phishing_probability": float(probability),
+        "final_prediction": result,
+        "final_probability": float(final_prob),
+
+        "model_outputs": {
+            "stacking_probability": float(stack_prob),
+            "lstm_probability": float(lstm_prob)
+        },
+
         "features": features,
         "explanations": explanations
     }
