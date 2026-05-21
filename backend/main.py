@@ -105,14 +105,17 @@ def predict_url(data: URLRequest):
 
     lstm_prob = lstm_model.predict(pad)[0][0]
 
-    # ==============================
-    # 🔹 3. HYBRID META MODEL
-    # ==============================
+    
 
-    X_meta = np.array([[stack_prob, lstm_prob]])
+    # ==============================
+# 🔹 3. FINAL DECISION (MAX LOGIC)
+# ==============================
 
-    final_pred = meta_model.predict(X_meta)[0]
-    final_prob = meta_model.predict_proba(X_meta)[0][1]
+    final_prob = max(stack_prob, lstm_prob)
+
+# Threshold (you can tune this)
+    threshold = 0.5
+    final_pred = 1 if final_prob >= threshold else 0
 
     result = "phishing" if final_pred == 1 else "legitimate"
 
